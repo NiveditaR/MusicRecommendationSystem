@@ -73,7 +73,7 @@ public class HomeController {
 	
 	
 	@RequestMapping(value="/login", method=RequestMethod.POST)
-	public ModelAndView searchbyitem(@RequestParam long songId, Model model){
+	public ModelAndView searchbyitem(@RequestParam String songId, Model model){
 					
 		return new ModelAndView("item","message", BookRecommender.getInstance().itembasedrecommendation(songId));
 		

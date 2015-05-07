@@ -1,9 +1,11 @@
 package com.myproject.main;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+
 
 
 
@@ -70,25 +72,25 @@ public class BookRecommender implements InitializingBean{
 	}
 	
 	
-		public String itembasedrecommendation(long itemID) {
+		public String itembasedrecommendation(String itemname) {
 					
 			StringBuilder sb=new StringBuilder();
+			long itemID=0;
 			try {
 				
 				File file = new File("C:/Users/Nivedita/Desktop/Downloads/yahoodata/songnames.csv");
 				FileReader fileReader = new FileReader(file);
 				BufferedReader bufferedReader = new BufferedReader(fileReader);
 				
-				
-				
-				
+							
 				Class.forName("com.mysql.jdbc.Driver");
 			
 			Connection con=DriverManager.getConnection(  
 					"jdbc:mysql://localhost:3306/songdata","root","root"); 
 			Statement stmt=con.createStatement();  
-  				 
-		
+  				 ResultSet rs1= stmt.executeQuery("select distinct id from songmapping where name="+itemname+";");
+  				 if(rs1.next() && rs1.getLong(1)!=0) itemID=rs1.getLong(1);
+  				 		
 			ResultSet rs=stmt.executeQuery("select distinct genrename from (itembasedrec natural join songattributes) natural join genrehierarchy where songid=recitemid and itemid="+itemID+" and songattributes.genreid=genrehierarchy.genreid;");
 			String line=bufferedReader.readLine();
 			
@@ -124,7 +126,10 @@ public class BookRecommender implements InitializingBean{
 			Recommender cachingRecommender;
 			try {
 			
-						
+				File file = new File("C:/Users/Nivedita/Desktop/Downloads/yahoodata/songnames.csv");
+				FileReader fileReader = new FileReader(file);
+				BufferedReader bufferedReader = new BufferedReader(fileReader);
+				
 				Class.forName("com.mysql.jdbc.Driver");
 				
 				Connection con=DriverManager.getConnection(  
@@ -132,12 +137,14 @@ public class BookRecommender implements InitializingBean{
 				Statement stmt=con.createStatement();  
 				
 					ResultSet rs=stmt.executeQuery("select distinct genrename from (userbasedrec natural join songattributes) natural join genrehierarchy where songid=userrecitemid and userloginid="+userId+" and songattributes.genreid=genrehierarchy.genreid;");
-										
+					String line=bufferedReader.readLine();				
 					
-					while(rs.next()){
+					while(rs.next()|| (line!=null)){
 						System.out.println(rs.getString(1));
-						sb.append(rs.getString(1));
+						sb.append("-\t");
+						sb.append(line);
 						sb.append(",");
+						line=bufferedReader.readLine();
 						
 						
 					}
@@ -151,6 +158,12 @@ public class BookRecommender implements InitializingBean{
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				sb.append("Invalid User...Please enter the correct user id");
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return sb.toString();

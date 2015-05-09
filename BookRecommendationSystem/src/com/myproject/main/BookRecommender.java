@@ -88,19 +88,28 @@ public class BookRecommender implements InitializingBean{
 			Connection con=DriverManager.getConnection(  
 					"jdbc:mysql://localhost:3306/songdata","root","root"); 
 			Statement stmt=con.createStatement();  
-  				 ResultSet rs1= stmt.executeQuery("select distinct id from songmapping where name="+itemname+";");
-  				 if(rs1.next() && rs1.getLong(1)!=0) itemID=rs1.getLong(1);
+  				 ResultSet rs1= stmt.executeQuery("select id from songmapping where name like '%"+itemname+"%';");
+  				 if(rs1.next()){
+  					
+  						 itemID=rs1.getLong(1);
+  						 System.out.println("item id: "+itemID);
+  						 if (itemID==0)
+  							 itemID=135351;
+  							 
+  				 }
   				 		
-			ResultSet rs=stmt.executeQuery("select distinct genrename from (itembasedrec natural join songattributes) natural join genrehierarchy where songid=recitemid and itemid="+itemID+" and songattributes.genreid=genrehierarchy.genreid;");
+			ResultSet rs=stmt.executeQuery("select genrename, songid from (itembasedrec natural join songattributes) natural join genrehierarchy where songid=recitemid and itemid="+itemID+" and songattributes.genreid=genrehierarchy.genreid;");
 			String line=bufferedReader.readLine();
 			
-			while(rs.next() || (line!=null)){
+			while(rs.next()){
 				System.out.println(rs.getString(1));
+				System.out.println(rs.getString(2));
 				sb.append(rs.getString(1));
-				sb.append("-\t");
-				sb.append(line);
+				sb.append("- ");
+				sb.append(rs.getString(2));
+				//sb.append(line);
 				sb.append(",");
-				line=bufferedReader.readLine();
+				//line=bufferedReader.readLine();
 			}
 			
 		
@@ -136,28 +145,29 @@ public class BookRecommender implements InitializingBean{
 						"jdbc:mysql://localhost:3306/songdata","root","root"); 
 				Statement stmt=con.createStatement();  
 				
-					ResultSet rs=stmt.executeQuery("select distinct genrename from (userbasedrec natural join songattributes) natural join genrehierarchy where songid=userrecitemid and userloginid="+userId+" and songattributes.genreid=genrehierarchy.genreid;");
-					String line=bufferedReader.readLine();				
+					ResultSet rs=stmt.executeQuery("select genrename, songid from (userbasedrec natural join songattributes) natural join genrehierarchy where songid=userrecitemid and userloginid="+userId+" and songattributes.genreid=genrehierarchy.genreid;");
+					String line=bufferedReader.readLine();
 					
-					while(rs.next()|| (line!=null)){
+					while(rs.next()){
 						System.out.println(rs.getString(1));
-						sb.append("-\t");
-						sb.append(line);
+						System.out.println(rs.getString(2));
+						sb.append(rs.getString(1));
+						sb.append("- ");
+						sb.append(rs.getString(2));
+						//sb.append(line);
 						sb.append(",");
-						line=bufferedReader.readLine();
-						
-						
+						//line=bufferedReader.readLine();
 					}
 					
 					
 					con.close();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
-				sb.append("Invalid User...Please enter the correct user id");
+				
 				e.printStackTrace();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				sb.append("Invalid User...Please enter the correct user id");
+				
 				e.printStackTrace();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block

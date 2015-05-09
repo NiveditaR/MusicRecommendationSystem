@@ -33,9 +33,11 @@ public class ItemRecommend {
 			DataModel dm = new FileDataModel(new File("C:/Users/Nivedita/Desktop/test_0.csv"));
 			
 			ItemSimilarity ism = new LogLikelihoodSimilarity(dm);
+			//ItemSimilarity ism = new PearsonCorrelationSimilarity(dm);
 			//TanimotoCoefficientSimilarity tcm= new TanimotoCoefficientSimilarity(dm);
 			GenericItemBasedRecommender rec = new GenericItemBasedRecommender(dm, ism);
-			
+			System.out.println("Item based Recommendation:");
+
 			int x=1;
 			for (LongPrimitiveIterator items=dm.getItemIDs(); items.hasNext();){
 				long itemid=items.nextLong();
@@ -46,12 +48,12 @@ public class ItemRecommend {
 					
 				}
 				x++;
-				if(x>5) break;//System.exit(1);
+				if(x>3) break;
 			}
-			System.out.println("Item based Recommendation:");
 			System.out.println("Time taken : " + (System.currentTimeMillis() - start));
 			
-		
+			System.out.println("User based Recommendation:");
+
 			 start = System.currentTimeMillis();
 			for (LongPrimitiveIterator users=dm.getUserIDs(); users.hasNext();){
 				long userid=users.nextLong();
@@ -61,15 +63,15 @@ public class ItemRecommend {
 			UserBasedRecommender urec= new GenericUserBasedRecommender(dm, uneighbour, usm);
 			List<RecommendedItem> recommendations= urec.recommend(userid, 3);
 			dm.getUserIDs();
+
 			for (RecommendedItem recommendation: recommendations){
 				System.out.println(userid+","+recommendation.getItemID());
 				
 			}
 			x++;
-			if(x>20) break;
+			if(x>10) break;
 		}
 			
-			System.out.println("User based Recommendation:");
 			System.out.println("Time taken : " + (System.currentTimeMillis() - start));		
 		
 					
